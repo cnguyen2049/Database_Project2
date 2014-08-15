@@ -1,0 +1,871 @@
+<!DOCTYPE>
+<html lang="en">
+    <head>
+        <title>SE 157B Project</title>
+        <style type="text/css">
+            body{
+                background-image: url(http://sidsyouth.org/wp-content/uploads/2014/03/background.jpg);
+                margin: 0;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+            #OpsMenu
+            {
+                text-align: center;
+                padding: 10px;
+            }
+            .clear{
+                clear: both;
+            }
+            #reportsCont
+            {
+                height: 60%;
+                overflow: auto;
+                padding: 10px;
+            }
+            #dataCont
+            {
+                padding: 20px;
+            }
+            #footer
+            {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                background-color: #FFF;
+            }
+            ul{
+                margin: 0;
+                padding: 0;
+                list-style-type: none;
+            }
+            .leftMenu
+            {
+                text-align: center;
+               width: 16%;
+                border: 1px solid #000;
+                float:left;
+                background-color: #FFF;
+            }
+            .leftMenu:hover{
+                background-color: #EEE;
+                cursor: pointer;
+            }
+            .active
+            {
+                border: 2px inset #000;
+                background-color: #DDD;
+            }
+            .hidden
+            {
+                display: none;
+            }    
+            table
+            {
+                border: 1px solid #000;
+                border-collapse: collapse;
+                background-color: #FFF;
+                margin: auto;
+            }
+            td, th{
+                border: 1px solid #000;
+                padding: 5px;
+                white-space: nowrap;
+            }
+            tr:nth-child(odd)
+            {
+                background-color: #EEE;
+            }
+            h4
+            {
+                margin: 10px 0 10px 0;
+            }
+            .attrCont{
+                border: 2px solid #000;
+                border-radius: 10px;
+                width: 180px;
+                background-color: #FFFCFC;
+            }
+            .selectAttributes
+            {
+                border-top: 2px solid #000;
+                padding: 10px;
+            }
+            .center
+            {
+                text-align: center;
+            }
+            #ERDiag
+            {
+                width: 700px;
+                height: 500px;
+                margin: auto;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            #rel
+            {
+                position: relative;
+                height: 500px;
+            }
+            #accounts
+            {
+                position: absolute;
+                top: 10%;
+                left: 3%;
+            }
+            #branch
+            {
+                position: absolute;
+                top: 5%;
+                right: 3%;
+            }
+            #month
+            {
+                position: absolute;
+                top: 0%;
+                left: 37%;
+            }
+            #product
+            {
+                position: absolute;
+                top: 45%;
+                right: 3%;
+            }
+            #facts
+            {
+                position: absolute;
+                top: 35%;
+                left: 37%;
+                background-color: #FFFCFC;
+            }
+            input[type="radio"], input[type="checkbox"]
+            {
+                width: 1.3em;
+                height: 1.3em;
+            }
+            #showBaseCube
+            {
+                position: absolute;
+                top: 65%;
+                left: 38%;
+                padding: 15px;
+                font-size: 12pt;
+                outline:none;
+            }
+            #performSlice
+            {
+                padding: 10px;
+                border-radius: 10px;
+                font-size: 12pt;
+                outline: none;
+                 margin: 10px 0 10px 0;
+            }
+            #performDice
+            {
+                padding: 10px;
+                border-radius: 10px;
+                font-size: 12pt;
+                outline: none;
+               margin: 10px 0 10px 0;
+            }
+            .vls            {		margin-top: 10px;            }
+            .textEntry
+            {
+                padding: 6px;
+                width: 200px;
+                border-radius: 6px;
+                border: 1px solid #000;
+            }
+            .textEntry:focus
+            {
+                border: 2px solid #000;
+                outline: none;
+            }
+            .primaryButton
+            {
+                background-color: #006363;
+                border: 1px solid #000;
+                border-radius: 20px;
+                color: #FFF;
+            }
+            .primaryButton:hover{
+                background-color: #1D7373;
+                cursor: pointer;
+            }
+            #inputbox1
+            {
+                position: absolute;
+                top: 80%;
+                left: 40%;
+                padding: 15px;
+                font-size: 12pt;
+            }
+            p{
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+            .error
+            {
+                color: #FF0000;
+                font-weight: bold;
+                font-size: 12pt;
+            }
+            #sliceInputs
+            {
+                width: 275px;
+                margin: auto;
+                text-align: right;
+            }
+        </style>
+        <script type="text/javascript" src="jquery-1.9.1.js"></script>
+    </head>
+    <body>
+        <h1 class="center">Bank Account OLAP Operations Project</h1>
+        <div id="OpsMenu">
+            <ul>
+                <li class="leftMenu center" id="defBase">
+                    <p>Define Base Cube</p>
+                </li>
+                <li class="leftMenu center" id="viewTables">
+                    <p>View Tables</p>
+                    <div class="hidden" id="selectTable">
+                        <label>Select table to view:</label><select id="tableSelect">
+                            <option>account</option>
+                            <option>month</option>
+                            <option>branch</option>
+                            <option>product</option>
+                            <option>household_facts</option>
+                        </select>
+                    </div>
+                </li>
+            
+                <li class="leftMenu center" id="rollUp">
+                    <p>Perform Roll-up</p>
+                </li>
+                <li class="leftMenu center" id="drillDown">
+                    <p>Perform Drill-down</p>
+                </li>
+                <li class="leftMenu center" id="slice">
+                    <p>Perform Slice</p>
+                </li>
+                <li class="leftMenu center" id="dice">
+                    <p>Perform Dice</p>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="dataCont" class="clear">
+            
+            <!--Content for performing slice operation-->
+            <div id="sliceInput" class="hidden">
+                <div id="sliceInputs">
+                    <label for="columnValue">Column: </label><input type="text" placeholder="Enter a column . . ." id="columnValue" class="textEntry" name="slice_column" /><br>
+                    <label for="sliceValue">Value: </label><input type="text" placeholder="Enter a value to slice on . . ." id="sliceValue" class="textEntry" name="slice_input" /><br/>
+                    <button id="performSlice" class="primaryButton">Perform Slice</button>
+                </div>
+            </div>
+            
+            <!--Content for performing dice operation-->
+            <div id="diceInput" class="hidden">
+                <div id="values" class="vls">
+                    <label for="column1">Column: </label><input type="text" id="column1" class="textEntry" placeholder="Enter a column . . ." /><br/>
+                    <label for="col1Input1">Values: </label><input type="text" id="col1Input1" class="textEntry" placeholder="Enter a value to dice on . . . " /> OR 
+                    <input type="text" id="col1Input2" class="textEntry" placeholder="Enter a value to dice on . . . " /> OR 
+                    <input type="text" id="col1Input3" class="textEntry" placeholder="Enter a value to dice on . . . " />
+                        <!--<button class="OR primaryButton" id="or1">OR</button>-->
+                    
+                </div>
+                
+                <div id="values1" class="vls">
+                    <label for="column2">Column: </label><input type="text" id="column2" class="textEntry" placeholder="Enter a column . . ." /><br/>
+                    <label for="colInput2">Values: </label><input type="text" id="col2Input1" class="textEntry" placeholder="Enter a value to dice on . . . " /> OR 
+                    <input type="text" id="col2Input2" class="textEntry" placeholder="Enter a value to dice on . . . " /> OR 
+                    <input type="text" id="col2Input3" class="textEntry" placeholder="Enter a value to dice on . . . " />
+                        <!--<button class="OR primaryButton" id="or2">OR</button></span>-->
+                    
+                </div>
+                
+                <div id="values2" class="vls">
+                   <label for="column3">Column: </label><input type="text" id="column3" class="textEntry" placeholder="Enter a column . . ." /><br/>
+                    <label for="col3Input3">Values: </label><input type="text" id="col3Input1" class="textEntry" placeholder="Enter a value to dice on . . . " /> OR 
+                        <input type="text" id="col3Input2" class="textEntry" placeholder="Enter a value to dice on . . . " /> OR 
+                        <input type="text" id="col3Input3" class="textEntry" placeholder="Enter a value to dice on . . . " />
+                        <!--<button class="OR primaryButton" id="or3">OR</button></span>-->
+                    
+                </div>
+                
+                
+                <button class="primaryButton" id="performDice">Perform Dice</button>
+            </div>
+            
+            <!--Error messages if OLAP functions are clicked before defining the base cube-->
+            <p id="rollUpError" class="hidden error center">Roll up cannot be performed until a base cube has been defined.  Define a base cube first.</p>
+            <p id="drillDownError" class="hidden error center">Drill down cannot be performed until a base cube has been defined.  Define a base cube first.</p>
+            <p id="sliceError" class="hidden error center">Slice cannot be performed until a base cube has been defined.  Define a base cube first.</p>
+            <p id="diceError" class="hidden error center">Dice cannot be performed until a base cube has been defined.  Define a base cube first.</p>
+            <div id="reportsCont" class="hidden">
+            
+            </div>
+            
+            <div id="ERDiag" class = "hidden">
+                <p id="ERDiagTitle"></p>
+                <div id="rel">
+                <div id="accounts" class="attrCont">
+                    <p class="center"><input type="checkbox" name="accountTable" value="accounts" id="accountCheck"/>Accounts</p>
+                    <div id="selectAccounts" class="selectAttributes">
+                        <input type="checkbox" name="accName1" value="primary_surname" id="accName1"/><label for="accName1">Primary Surname</label><br/>
+            <input type="checkbox" name="accName2" value="secondary_surname" id="accName2"/><label for="accName2">2nd Surname</label><br/>
+            <input type="checkbox" name="accAge" value="primary_age" id="accAge"/><label for="accAge">Age</label><br/>
+            <input type="checkbox" name="accSex" value="primary_sex" id="accSex"/><label for="accSex">Sex</label><br/>
+            <input type="checkbox" name="accMarital" value="primary_marital" id="accMarital"/><label for="accMarital">Marital</label><br/>
+            <input type="checkbox" name="accDateOpened" value="date_opened" id="accDateOpened"/><label for="accDateOpened">Date Opened</label><br/>
+                        <input type="radio" name="acctHier" value="account_address" id="accAddress"/><label for="accAddress">Address</label><br/>
+                        <input type="radio" name="acctHier" value="account_zip" id="accZip"/><label for="accZip">Zip code</label><br/>
+                        <input type="radio" name="acctHier" value="account_city" id="accCity"/><label for="accCity">City</label><br/>
+                        <input type="radio" name="acctHier" value="account_state" id="accState"/><label for="accState">State</label><br/>
+                    </div>    
+                </div>
+                
+                <div id="branch" class="attrCont">
+                    <p class="center"><input type="checkbox" name="branchTable" value="branch" id="branchCheck"/>Branch</p>
+                    <div id="selectBranch" class="selectAttributes">
+                        <input type="checkbox" name="branchName" value="branch_name" id="branchName"/><label for="branchName">Name</label><br/>
+                        <input type="radio" name="branchHier" value="branch_address" id="branchAddress"/><label for="branchAddress">Address</label><br/>
+                        <input type="radio" name="branchHier" value="branch_zip" id="branchZip"/><label for="branchZip">Zip Code</label><br/>
+                        <input type="radio" name="branchHier" value="branch_city" id="branchCity"/><label for="branchCity">City</label><br/>
+                        <input type="radio" name="branchHier" value="branch_state" id="branchState"/><label for="branchState">State</label><br/>
+                    </div>    
+                </div>
+                
+                <div id="month" class="attrCont">
+                    <p class="center"><input type="checkbox" value="month" name="monthTable" id="monthCheck"/>Month</p>
+                    <div id="selectMonth" class="selectAttributes">
+                        <input type="radio" name="monthHier" value="month" id="mth"/><label for="mth">Month</label><br/>
+                        <input type="radio" name="monthHier" value="fiscal_quarter" id="quarter"/><label for="quarter">Quarter</label><br/>
+                        <input type="radio" name="monthHier" value="year" id="year"/><label for="year">Year</label><br/>
+                    </div>    
+                </div>
+                
+                <div id="product" class="attrCont">
+                    <p class="center"><input type="checkbox" value="products" name="productTable" id="productCheck"/>Products</p>
+                    <div id="selectProducts" class="selectAttributes">
+                        <input type="radio" name="prodHier" value="product_description" id="description"/><label for="description">Description</label><br/>
+                        <input type="radio" name="prodHier" value="type" id="type"/><label for="type">Type</label><br/>
+                        <input type="radio" name="prodHier" value="category" id="category"/><label for="category">Category</label><br/>
+                    </div>    
+                </div>
+                
+                <div id="facts" class="attrCont">
+                    <p class="center">Household Facts</p>
+                    <div id="selectFacts" class="selectAttributes">
+                        <input type="radio" name="fact" id="bal" value="primary_balance"/><label for="bal">Balance</label><br/>
+                        <input type="radio" name="fact" id="transCnt" value="transaction_count"/><label for="transCnt">Transaction Count</label><br/>
+                        <input type="radio" name="fact" id="acctCnt" value="account_count"/><label for="acctCnt">Account Count</label><br/>
+                    </div>    
+                </div>
+                <button id="showBaseCube" class="primaryButton">Show Base Cube</button>
+                </div>
+                
+            </div>
+        </div>
+        
+        <div id="footer" class="center">
+            <h4>Programmed by: Clark Stonehocker, Chris Nguyen, and Quang Pham</h4>
+        </div>
+    </body>
+    <script type="text/javascript">
+        var cubeDef = 0;
+        var num1 = 1;
+        var inputsSpan = 1;
+        var values = 1;
+        var colNum = 1;
+        var columnNum = 1;
+        $(".leftMenu").click(function(){
+            $(".leftMenu").removeClass("active");
+            $(this).addClass("active");
+            var index = $(this).index();
+            if (index != 1)
+            {
+                $("#selectTable, #reportsCont, #ERDiag").hide();
+            }
+            else
+            {
+                $(".error, #sliceInput, #diceInput, #ERDiag").hide();
+                $("#selectTable").show();
+                var table = $("#tableSelect option:selected").text();
+                $.ajax({
+                    url: "get_table.php",
+                    type: "POST",
+                    data: {tableName:table},
+                    success: function(response) {
+                        $("#reportsCont").html(response).show();
+                    },
+                    error: function(response){
+                        $("#reportsCont").text("Error");
+                    }
+                });     
+            }
+        });
+        $("#tableSelect").change(function()
+        {
+            $("#ERDiag").hide();
+            var table = $("#tableSelect option:selected").text();
+            $.ajax({
+                url: "get_table.php",
+                type: "POST",
+                data: {tableName:table},
+                success: function(response) {
+                    $("#reportsCont").html(response);
+                    
+                },
+                error: function(response){
+                    $("#reportsCont").text("Error");
+                }
+            });                     
+        });
+        var clearAll = function() {
+            $('input','#accounts').attr("disabled",false);
+            $("input[type=radio][id=accAddress]").attr('disabled',false);
+            $("input[type=radio][id=accZip]").attr('disabled',false);
+            $("input[type=radio][id=accCity]").attr("disabled",false);
+            $("input[type=radio][id=accState]").attr("disabled",false);
+            $('input','#branch').attr("disabled",false);
+            $("input[type=radio][id=branchAddress]").attr('disabled',false);
+            $("input[type=radio][id=branchZip]").attr('disabled',false);
+            $("input[type=radio][id=branchCity]").attr("disabled",false);
+            $("input[type=radio][id=branchState]").attr("disabled",false);
+            $('input','#month').attr("disabled",false);
+            $("input[type=radio][id=month]").attr("disabled",false);
+            $("input[type=radio][id=quarter]").attr("disabled",false);
+            $("input[type=radio][id=year]").attr("disabled",false);
+            $('input','#product').attr("disabled",false);
+            $("input[type=radio][id=description]").attr("disabled",false);
+            $("input[type=radio][id=type]").attr("disabled",false);
+            $("input[type=radio][id=category]").attr("disabled",false);
+            $("input[type=radio][id=acctCnt]").attr("disabled",false);
+            $("input[type=radio][id=bal]").attr('disabled',false);
+            $("input[type=radio][id=transCnt]").attr("disabled",false);        }
+        $("#defBase").click(function(){
+            $(".error, #sliceInput, #diceInput").hide();
+            $("#ERDiagTitle").text("Select an attribute from the relation(s) and the fact table."
+                                   + "Then click the \"Show Base Cube button\" to define the base cube.");
+            $("#showBaseCube").text("Show Base Cube");
+            $("#ERDiag").show();
+            clearAll();
+        });
+        <!-- account -->
+        $("input[name='acctHier']").change(function(){
+           $("#accountCheck").prop('checked', true);
+        });
+        $("input[name='accName1']").change(function(){
+           $("#accountCheck").prop('checked', true);
+        });
+        $("input[name='accName2']").change(function(){
+           $("#accountCheck").prop('checked', true);
+        });
+        $("input[name='accAge']").change(function(){
+           $("#accountCheck").prop('checked', true);
+        });
+        $("input[name='accSex']").change(function(){
+           $("#accountCheck").prop('checked', true);
+        });
+        $("input[name='accMarital']").change(function(){
+           $("#accountCheck").prop('checked', true);
+        });
+        $("input[name='accDateOpened']").change(function(){
+           $("#accountCheck").prop('checked', true);
+        });
+        $("input[name='accountTable']").change(function(){
+            $("#accName1").prop('checked', false);
+            $("#accName2").prop('checked', false);
+            $("#accSex").prop('checked', false);
+            $("#accAge").prop('checked', false);
+            $("#accMarital").prop('checked', false);
+            $("#accDateOpened").prop('checked', false);
+            $("#accAddress").prop('checked', false);
+            $("#accCity").prop('checked', false);
+            $("#accState").prop('checked', false);
+            $("#accZip").prop('checked', false);
+        });
+        <!-- branch -->
+        $("input[name='branchHier']").change(function(){
+           $("#branchCheck").prop('checked', true);
+        });
+        $("input[name='branchName']").change(function(){
+           $("#branchCheck").prop('checked', true);
+        });
+        $("input[name='branchTable']").change(function(){
+            $("#branchName").prop('checked', false);
+            $("#branchAddress").prop('checked', false);
+            $("#branchCity").prop('checked', false);
+            $("#branchState").prop('checked', false);
+            $("#branchZip").prop('checked', false);
+        });
+        <!-- Month -->
+        $("input[name='monthHier']").change(function(){
+            $("#monthCheck").prop('checked', true);
+        });
+        $("input[name='monthTable']").change(function(){
+            $("#mth").prop('checked', false);
+            $("#quarter").prop('checked', false);
+            $("#year").prop('checked', false);
+        });
+        <!-- Month -->
+        $("input[name='prodHier']").change(function(){
+           $("#productCheck").prop('checked', true);
+        });
+        $("input[name='productTable']").change(function(){
+            $("#description").prop('checked', false);
+            $("#type").prop('checked', false);
+            $("#category").prop('checked', false);
+        });
+        $("#showBaseCube").click(function(){
+            if (($("#accountCheck").is(':checked') || $("#branchCheck").is(':checked') ||
+                     $("#productCheck").is(':checked') || $("#monthCheck").is(':checked')) &&
+                     ($("#bal").is(':checked') || $("#transCnt").is(':checked') || $("#acctCnt").is(':checked'))) {
+                var accountAttr = $("input[name='acctHier']:checked").val();
+                var accName1 = $("input[name='accName1']:checked").val();
+                var accName2 = $("input[name='accName2']:checked").val();
+                var accSex = $("input[name='accSex']:checked").val();
+                var accAge = $("input[name='accAge']:checked").val();
+                var accDateOpened = $("input[name='accDateOpened']:checked").val();
+                var accMarital = $("input[name='accMarital']:checked").val();
+                var branchAttr = $("input[name='branchHier']:checked").val();
+                var branchName = $("input[name='branchName']:checked").val();
+                var monthAttr = $("input[name='monthHier']:checked").val();
+                var prodAttr = $("input[name='prodHier']:checked").val();
+                var factAttr = $("input[name='fact']:checked").val();
+            
+                $.ajax({
+                    url:"build_base_cube.php",
+                    type:"POST",
+                    data:{month:monthAttr, a1:accName1, a2:accName2, a3:accSex, a4:accAge, a5:accDateOpened, a6:accMarital, account:accountAttr, branch:branchAttr, branchName:branchName, product:prodAttr, fact:factAttr},
+                    success: function(response){
+                        $("#ERDiag").hide();
+                        $("#reportsCont").html(response).show();
+                        cubeDef = 1;
+                    },
+                    error: function(response){
+                        $("#reportsCont").text("Error creating base cube");
+                    }
+                });
+            }
+            else
+            {
+                alert("Please choose at least one dimension and one fact.");
+            }
+        });
+        var disableAttrRollUp = function() {
+            if ($("#accountCheck").is(':checked') == 0) { $('input','#accounts').attr("disabled",true); }
+            else {
+                if ($("#accState").is(':checked'))
+                {
+                    $("input[type=radio][id=accAddress]").attr('disabled',true);
+                    $("input[type=radio][id=accCity]").attr("disabled",true);
+                    $("input[type=radio][id=accZip]").attr("disabled",true);
+                }
+                if ($("#accCity").is(':checked'))
+                {
+                    $("input[type=radio][id=accAddress]").attr("disabled",true);
+                    $("input[type=radio][id=accZip]").attr("disabled",true);
+                }
+                if ($("#accZip").is(':checked'))
+                {
+                    $("input[type=radio][id=accAddress]").attr("disabled",true);
+                }
+            }
+            if ($("#branchCheck").is(':checked') == 0) { $('input','#branch').attr("disabled",true); }
+            else
+            {
+                if ($("#branchState").is(':checked'))
+                {
+                    $("input[type=radio][id=branchZip]").attr('disabled',true);
+                    $("input[type=radio][id=branchCity]").attr("disabled",true);
+                    $("input[type=radio][id=branchAddress]").attr("disabled",true);
+                }
+                if ($("#branchCity").is(':checked'))
+                {
+                    $("input[type=radio][id=branchAddress]").attr("disabled",true);
+                    $("input[type=radio][id=branchZip]").attr("disabled",true);
+                }
+                if ($("#branchZip").is(':checked'))
+                {
+                    $("input[type=radio][id=branchAddress]").attr("disabled",true);
+                }
+            }
+            if ($("#monthCheck").is(':checked') == 0) { $('input','#month').attr("disabled",true); }
+            else
+            {
+                if ($("#year").is(':checked'))
+                {
+                    $("input[type=radio][id=quarter]").attr("disabled",true);
+                    $("input[type=radio][id=mth]").attr("disabled",true);
+                }
+                if ($("#quarter").is(':checked'))
+                {
+                    $("input[type=radio][id=mth]").attr("disabled",true);
+                }
+            }
+            if ($("#productCheck").is(':checked') == 0) { $('input','#product').attr("disabled",true); }
+            else {
+                if ($("#category").is(':checked'))
+                {
+                    $("input[type=radio][id=type]").attr("disabled",true);
+                    $("input[type=radio][id=description]").attr("disabled",true);
+                }
+                if ($("#type").is(':checked'))
+                {
+                    $("input[type=radio][id=description]").attr("disabled",true);
+                }
+            }
+	    if ($("#bal").is(':checked'))
+            {
+                $("input[type=radio][id=transCnt]").attr('disabled',true);
+                $("input[type=radio][id=acctCnt]").attr("disabled",true);
+	    }
+            else if ($("#transCnt").is(':checked'))
+            {
+                $("input[type=radio][id=bal]").attr('disabled',true);
+                $("input[type=radio][id=acctCnt]").attr("disabled",true);
+	    }
+            else
+            {
+	    	$("input[type=radio][id=bal]").attr('disabled',true);
+                $("input[type=radio][id=transCnt]").attr("disabled",true);
+	    }
+        }
+        
+        $("#rollUp").click(function(){
+            $("#sliceInput, #diceInput, .error").hide();
+            var cube = document.getElementById('reportsCont');
+            if (cube.children.length == 0 || cubeDef == 0)
+            {
+                document.getElementById('rollUpError').style.display='block';
+            }
+            else
+            {
+                $("#ERDiagTitle").text("For Roll Up by concept hierachy, pick an attribute that is HIGHER than the current one."
+                                  + "For Roll Up by dimensions, click Define Base Cube to remove dimensions then redefine the base cube.");
+                $("#showBaseCube").text("Perform Roll Up");
+                $("#ERDiag").show();
+                clearAll();
+                disableAttrRollUp();
+            }
+            
+        });
+        var disableAttrDrillDown = function() {
+            if ($("#accountCheck").is(':checked') == 0)
+            {
+                $('input','#accounts').attr("disabled",true);
+            }
+            else
+            {    
+                if ($("#accAddress").is(':checked'))
+                {
+                    $("input[type=radio][id=accZip]").attr('disabled',true);
+                    $("input[type=radio][id=accCity]").attr("disabled",true);
+                    $("input[type=radio][id=accState]").attr("disabled",true);
+                }
+                if ($("#accZip").is(':checked'))
+                {
+                    $("input[type=radio][id=accCity]").attr("disabled",true);
+                    $("input[type=radio][id=accState]").attr("disabled",true);
+                }
+                if ($("#accCity").is(':checked'))
+                {
+                    $("input[type=radio][id=accState]").attr("disabled",true);
+                }
+            }
+            if ($("#branchCheck").is(':checked') == 0)
+            {
+                $('input','#branch').attr("disabled",true);
+            }
+            else
+            {
+                if ($("#branchAddress").is(':checked'))
+                {
+                    $("input[type=radio][id=branchZip]").attr('disabled',true);
+                    $("input[type=radio][id=branchCity]").attr("disabled",true);
+                    $("input[type=radio][id=branchState]").attr("disabled",true);
+                }
+                if ($("#branchZip").is(':checked'))
+                {
+                    $("input[type=radio][id=branchCity]").attr("disabled",true);
+                    $("input[type=radio][id=branchState]").attr("disabled",true);
+                }
+                if ($("#branchCity").is(':checked'))
+                {
+                    $("input[type=radio][id=branchState]").attr("disabled",true);
+                }
+            }
+            if ($("#monthCheck").is(':checked') == 0)
+            {
+                $('input','#month').attr("disabled",true);
+            }
+            else
+            {
+                if ($("#mth").is(':checked'))
+                {
+                    $("input[type=radio][id=quarter]").attr("disabled",true);
+                    $("input[type=radio][id=year]").attr("disabled",true);
+                }
+                if ($("#quarter").is(':checked'))
+                {
+                    $("input[type=radio][id=year]").attr("disabled",true);
+                }
+            }
+            if ($("#productCheck").is(':checked') == 0)
+            {
+                $('input','#product').attr("disabled",true);
+            }
+            else
+            {
+                if ($("#description").is(':checked'))
+                {
+                    $("input[type=radio][id=type]").attr("disabled",true);
+                    $("input[type=radio][id=category]").attr("disabled",true);
+                }
+                if ($("#type").is(':checked'))
+                {
+                    $("input[type=radio][id=category]").attr("disabled",true);
+                }
+            }
+	    if ($("#bal").is(':checked'))
+            {
+                $("input[type=radio][id=transCnt]").attr('disabled',true);
+                $("input[type=radio][id=acctCnt]").attr("disabled",true);
+	    }
+            else if ($("#transCnt").is(':checked'))
+            {
+                $("input[type=radio][id=bal]").attr('disabled',true);
+                $("input[type=radio][id=acctCnt]").attr("disabled",true);
+	    } else
+            {
+		$("input[type=radio][id=bal]").attr('disabled',true);
+                $("input[type=radio][id=transCnt]").attr("disabled",true);
+	    }
+        }
+        
+        $("#drillDown").click(function(){
+            $("#sliceInput, #diceInput, .error").hide();
+            var cube = document.getElementById('reportsCont');
+            if (cube.children.length == 0 || cubeDef == 0)
+            {
+                $(".error").hide();
+                document.getElementById('drillDownError').style.display='block';
+            }
+            else
+            {
+                $("#ERDiagTitle").text("For Drill Down by concept hierachy, pick an attribute that is LOWER than the current one."
+                                  + "For Drill Down by dimensions, click Define Base Cube to add dimensions then redefine the base cube.");
+                $("#showBaseCube").text("Perform Drill Down");
+                $("#ERDiag").show();
+                clearAll();
+                disableAttrDrillDown();
+            }
+            
+        });
+        
+        $("#slice").click(function(){
+            var cube = document.getElementById('reportsCont');
+            $("#diceInput").hide();
+            if (cube.children.length == 0 || cubeDef == 0)
+            {
+                $(".error").hide();
+                document.getElementById('sliceError').style.display='block';
+                
+            }
+            else
+            {
+                $("#sliceInput").show();
+                $("#reportsCont").show();
+            }
+        });
+        $("#performSlice").click(function(){
+            var accountAttr = $("input[name='acctHier']:checked").val();
+            var accName1 = $("input[name='accName1']:checked").val();
+            var accName2 = $("input[name='accName2']:checked").val();
+            var accSex = $("input[name='accSex']:checked").val();
+            var accAge = $("input[name='accAge']:checked").val();
+            var accDateOpened = $("input[name='accDateOpened']:checked").val();
+            var accMarital = $("input[name='accMarital']:checked").val();
+            var branchAttr = $("input[name='branchHier']:checked").val();
+            var branchName = $("input[name='branchName']:checked").val();
+            var monthAttr = $("input[name='monthHier']:checked").val();
+            var prodAttr = $("input[name='prodHier']:checked").val();
+            var factAttr = $("input[name='fact']:checked").val();
+            
+            var sliceVar = $("#sliceValue").val();
+            var sliceCol = $("#columnValue").val();
+            $.ajax({
+                url:"build_base_cube.php",
+                type:"POST",
+                data:{month:monthAttr, a1:accName1, a2:accName2, a3:accSex, a4:accAge, a5:accDateOpened, a6:accMarital, account:accountAttr, branch:branchAttr, branchName:branchName, product:prodAttr, fact:factAttr, sliceColumn:sliceCol, slice:sliceVar},
+                success: function(response){
+                    $("#ERDiag").hide();
+                    $("#reportsCont").html(response).show();
+                   
+                },
+                error: function(response){
+                    $("#reportsCont").text("Error creating base cube");
+                }
+            }); 
+        });
+        
+        $("#dice").click(function(){
+            $("#sliceInput, .error").hide();
+            var cube = document.getElementById('reportsCont');
+            if (cube.children.length == 0 || cubeDef == 0)
+            {
+                document.getElementById('diceError').style.display='block';
+            }
+            else
+            {
+                $("#diceInput").show();
+                $("#reportsCont").show();
+            }
+        });
+        $("#performDice").click(function(){
+            
+            var accountAttr = $("input[name='acctHier']:checked").val();
+            var accName1 = $("input[name='accName1']:checked").val();
+            var accName2 = $("input[name='accName2']:checked").val();
+            var accSex = $("input[name='accSex']:checked").val();
+            var accAge = $("input[name='accAge']:checked").val();
+            var accDateOpened = $("input[name='accDateOpened']:checked").val();
+            var accMarital = $("input[name='accMarital']:checked").val();
+            var branchAttr = $("input[name='branchHier']:checked").val();
+            var branchName = $("input[name='branchName']:checked").val();
+            var monthAttr = $("input[name='monthHier']:checked").val();
+            var prodAttr = $("input[name='prodHier']:checked").val();
+            var factAttr = $("input[name='fact']:checked").val();
+            
+            var diceCol11 = $("#col1Input1").val();
+            var diceCol12 = $("#col1Input2").val();
+            var diceCol13 = $("#col1Input3").val();
+            var diceVar1 = $("#column1").val();
+            
+            var diceCol21 = $("#col2Input1").val();
+            var diceCol22 = $("#col2Input2").val();
+            var diceCol23 = $("#col2Input3").val();
+            var diceVar2 = $("#column2").val();
+            
+            var diceCol31 = $("#col3Input1").val();
+            var diceCol32 = $("#col3Input2").val();
+            var diceCol33 = $("#col3Input3").val();
+            var diceVar3 = $("#column3").val();
+            $.ajax({
+                url:"build_base_cube.php",
+                type:"POST",
+                data:{month:monthAttr, a1:accName1, a2:accName2, a3:accSex, a4:accAge, a5:accDateOpened, a6:accMarital, account:accountAttr, branch:branchAttr, branchName:branchName, product:prodAttr, fact:factAttr, diceVar1:diceVar1, diceCol11:diceCol11,diceCol12:diceCol12, diceCol13:diceCol13, diceVar2:diceVar2, diceCol21:diceCol21,diceCol22:diceCol22, diceCol23:diceCol23, diceVar3:diceVar3, diceCol31:diceCol31,diceCol32:diceCol32, diceCol33:diceCol33},
+                success: function(response){
+                    $("#ERDiag").hide();
+                    $("#reportsCont").html(response).show(); 
+                },
+                error: function(response){
+                    $("#reportsCont").text("Error creating base cube");
+                }
+            }); 
+        });
+    </script>
+</html>
